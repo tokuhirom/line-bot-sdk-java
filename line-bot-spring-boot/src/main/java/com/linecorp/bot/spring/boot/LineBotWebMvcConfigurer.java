@@ -18,6 +18,7 @@ package com.linecorp.bot.spring.boot;
 
 import java.util.List;
 
+import com.linecorp.bot.spring.boot.support.LineBotDestinationArgumentProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,8 @@ public class LineBotWebMvcConfigurer implements WebMvcConfigurer {
     private LineBotServerInterceptor lineBotServerInterceptor;
     @Autowired
     private LineBotServerArgumentProcessor lineBotServerArgumentProcessor;
+    @Autowired
+    private LineBotDestinationArgumentProcessor lineBotDestinationArgumentProcessor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -46,5 +49,6 @@ public class LineBotWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(lineBotServerArgumentProcessor);
+        argumentResolvers.add(lineBotDestinationArgumentProcessor);
     }
 }

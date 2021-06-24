@@ -18,6 +18,7 @@ package com.linecorp.bot.spring.boot;
 
 import java.nio.charset.StandardCharsets;
 
+import com.linecorp.bot.spring.boot.support.LineBotDestinationArgumentProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,8 @@ import com.linecorp.bot.spring.boot.support.LineBotServerArgumentProcessor;
 
 @Component
 @ConditionalOnWebApplication
-@Import({ LineBotServerInterceptor.class, LineBotServerArgumentProcessor.class })
+@Import({ LineBotServerInterceptor.class, LineBotServerArgumentProcessor.class,
+        LineBotDestinationArgumentProcessor.class})
 public class LineBotWebMvcBeans {
     @Autowired
     private LineBotProperties lineBotProperties;

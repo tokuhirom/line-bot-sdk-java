@@ -16,16 +16,18 @@
 
 package com.linecorp.bot.spring.boot.support;
 
-import static java.util.Collections.singletonMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.util.function.Predicate;
-
+import com.google.common.collect.ImmutableMap;
+import com.linecorp.bot.model.event.Event;
+import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.ReplyEvent;
+import com.linecorp.bot.model.event.message.TextMessageContent;
+import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.spring.boot.annotation.EventMapping;
+import com.linecorp.bot.spring.boot.annotation.LineBotDestination;
+import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
+import com.linecorp.bot.spring.boot.support.LineMessageHandlerSupport.HandlerMethod;
+import com.linecorp.bot.spring.boot.test.EventTestUtil;
+import lombok.AllArgsConstructor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,19 +37,13 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.google.common.collect.ImmutableMap;
+import java.lang.reflect.Method;
+import java.util.function.Predicate;
 
-import com.linecorp.bot.model.event.Event;
-import com.linecorp.bot.model.event.MessageEvent;
-import com.linecorp.bot.model.event.ReplyEvent;
-import com.linecorp.bot.model.event.message.TextMessageContent;
-import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.spring.boot.annotation.EventMapping;
-import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
-import com.linecorp.bot.spring.boot.support.LineMessageHandlerSupport.HandlerMethod;
-import com.linecorp.bot.spring.boot.test.EventTestUtil;
-
-import lombok.AllArgsConstructor;
+import static java.util.Collections.singletonMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class LineMessageHandlerSupportTest {
     @Rule
@@ -124,11 +120,28 @@ public class LineMessageHandlerSupportTest {
         target.refresh();
 
         // Do
-        target.dispatch(event);
+        target.dispatch(null, event);
 
         // Verify
         verify(replyByReturnValueConsumerFactory).createForEvent(event);
         verify(replyByReturnValueConsumer, times(1)).accept(new TextMessage("Message from Handler method"));
+    }
+
+    @Test
+    public void dispatchDestination() {
+        final MessageEvent event = EventTestUtil.createTextMessage("text");
+
+        when(applicationContext.getBeansWithAnnotation(LineMessageHandler.class))
+                .thenReturn(singletonMap("bean", new DestinationHandler()));
+
+        target.refresh();
+
+        // Do
+        target.dispatch("DESTDEST", event);
+
+        // Verify
+        verify(replyByReturnValueConsumerFactory).createForEvent(event);
+        verify(replyByReturnValueConsumer, times(1)).accept(new TextMessage("DESTDEST"));
     }
 
     @LineMessageHandler
@@ -157,6 +170,15 @@ public class LineMessageHandlerSupportTest {
         @EventMapping
         public TextMessage reply(final ReplyEvent replySupportEvent) {
             return new TextMessage(replyMessage);
+        }
+    }
+
+    @LineMessageHandler
+    @AllArgsConstructor
+    public static class DestinationHandler {
+        @EventMapping
+        public TextMessage dest(@LineBotDestination String destination,  final Event event) {
+            return new TextMessage(destination);
         }
     }
 }

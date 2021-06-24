@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.linecorp.bot.spring.boot;
+package com.linecorp.bot.spring.boot.integration.basic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -52,7 +52,7 @@ import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.spring.boot.IntegrationTest.MyController;
+import com.linecorp.bot.spring.boot.integration.basic.IntegrationTest.MyController;
 import com.linecorp.bot.spring.boot.annotation.LineBotMessages;
 
 import lombok.NonNull;

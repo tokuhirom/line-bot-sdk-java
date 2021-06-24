@@ -52,8 +52,8 @@ import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.spring.boot.integration.basic.IntegrationTest.MyController;
 import com.linecorp.bot.spring.boot.annotation.LineBotMessages;
+import com.linecorp.bot.spring.boot.integration.basic.IntegrationTest.MyController;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

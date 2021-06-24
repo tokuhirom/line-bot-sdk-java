@@ -18,7 +18,6 @@ package com.linecorp.bot.spring.boot;
 
 import java.nio.charset.StandardCharsets;
 
-import com.linecorp.bot.spring.boot.support.LineBotDestinationArgumentProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +27,7 @@ import org.springframework.stereotype.Component;
 import com.linecorp.bot.parser.LineSignatureValidator;
 import com.linecorp.bot.parser.WebhookParser;
 import com.linecorp.bot.spring.boot.interceptor.LineBotServerInterceptor;
+import com.linecorp.bot.spring.boot.support.LineBotDestinationArgumentProcessor;
 import com.linecorp.bot.spring.boot.support.LineBotServerArgumentProcessor;
 
 @Component

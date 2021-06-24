@@ -16,23 +16,14 @@
 
 package com.linecorp.bot.spring.boot.integration.destination;
 
-import com.google.common.io.ByteStreams;
-import com.linecorp.bot.client.LineMessagingClient;
-import com.linecorp.bot.model.ReplyMessage;
-import com.linecorp.bot.model.event.Event;
-import com.linecorp.bot.model.event.FollowEvent;
-import com.linecorp.bot.model.event.MessageEvent;
-import com.linecorp.bot.model.event.message.MessageContent;
-import com.linecorp.bot.model.event.message.TextMessageContent;
-import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.spring.boot.annotation.LineBotDestination;
-import com.linecorp.bot.spring.boot.annotation.LineBotMessages;
-import com.linecorp.bot.spring.boot.integration.destination.IntegrationTestWithDestination.MyController;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,13 +40,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import com.google.common.io.ByteStreams;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.model.ReplyMessage;
+import com.linecorp.bot.model.event.Event;
+import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.MessageContent;
+import com.linecorp.bot.model.event.message.TextMessageContent;
+import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.spring.boot.annotation.LineBotDestination;
+import com.linecorp.bot.spring.boot.annotation.LineBotMessages;
+import com.linecorp.bot.spring.boot.integration.destination.IntegrationTestWithDestination.MyController;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 // integration test
 @RunWith(SpringRunner.class)
@@ -83,7 +85,8 @@ public class IntegrationTestWithDestination {
         private LineMessagingClient lineMessagingClient;
 
         @PostMapping("/callback")
-        public void callback(@LineBotDestination String destination, @NonNull @LineBotMessages List<Event> events) throws Exception {
+        public void callback(@LineBotDestination String destination,
+                             @NonNull @LineBotMessages List<Event> events) throws Exception {
             log.info("Got request: destination={} {}", destination, events);
 
             for (Event event : events) {
@@ -123,7 +126,8 @@ public class IntegrationTestWithDestination {
 
         String signature = "gE37NHSFgqkPck7uHtXBFR0ahs7+C4ABYCsC7/h1Ji4=";
 
-        InputStream resource = getClass().getClassLoader().getResourceAsStream("callback-request-with-destination.json");
+        InputStream resource = getClass().getClassLoader()
+                                         .getResourceAsStream("callback-request-with-destination.json");
         byte[] json = ByteStreams.toByteArray(resource);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/callback")
@@ -139,7 +143,8 @@ public class IntegrationTestWithDestination {
         assertThat(request1.getBody().readUtf8())
                 .isEqualTo("{\"replyToken\":\"nHuyWiB7yP5Zw52FIkcQobQuGDXCTA\","
                            + "\"messages\":["
-                           + "{\"type\":\"text\",\"text\":\"Hello, world! with destination U1111111111111111111111\"}],"
+                           + "{\"type\":\"text\","
+                           + "\"text\":\"Hello, world! with destination U1111111111111111111111\"}],"
                            + "\"notificationDisabled\":false}");
     }
 }

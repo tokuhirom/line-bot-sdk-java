@@ -29,8 +29,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.linecorp.bot.spring.boot.annotation.LineBotDestination;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -49,13 +47,12 @@ import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.ReplyEvent;
 import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
+import com.linecorp.bot.spring.boot.annotation.LineBotDestination;
 import com.linecorp.bot.spring.boot.annotation.LineBotMessages;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.google.common.base.Strings.lenientFormat;
 
 /**
  * Dispatcher for LINE Message Event Handling.
@@ -131,7 +128,6 @@ public class LineMessageHandlerSupport {
         }
 
         return new HandlerMethod(consumer, method, mapping);
-        // TODO: Support more than 1 argument. Like MVC's argument resolver?
     }
 
     @Value
@@ -141,10 +137,11 @@ public class LineMessageHandlerSupport {
         Method handler;
         int priority;
 
-        public HandlerMethod(Object object, Method handler, EventMapping mapping) {
+        HandlerMethod(Object object, Method handler, EventMapping mapping) {
             this.object = object;
             this.handler = handler;
 
+            // TODO: Support more flexible argument resolver. Like MVC's argument resolver?
             int parameterCount = handler.getParameterCount();
             if (parameterCount == 1) {
                 final Type type = handler.getGenericParameterTypes()[0];
@@ -153,17 +150,19 @@ public class LineMessageHandlerSupport {
             } else if (parameterCount == 2) {
                 Annotation[] parameterAnnotations = handler.getParameterAnnotations()[0];
                 Preconditions.checkState(
-                    Arrays.stream(parameterAnnotations).filter(it -> it instanceof LineBotDestination).count() == 1,
-                    "1st argument of the event hnadler should have @LineBotDestination annotation"
-                    + " when the method have 2 arguments."
+                        Arrays.stream(parameterAnnotations)
+                              .filter(it -> it instanceof LineBotDestination)
+                              .count() == 1,
+                        "1st argument of the event hnadler should have @LineBotDestination annotation"
+                        + " when the method have 2 arguments."
                 );
 
                 final Type type = handler.getGenericParameterTypes()[1];
                 this.supportType = new EventPredicate(type);
                 this.priority = calcPriority(mapping, type);
             } else {
-                throw new IllegalStateException("Number of parameter should be 1 or 2." +
-                        " But " + Arrays.toString(handler.getParameterTypes()));
+                throw new IllegalStateException("Number of parameter should be 1 or 2."
+                                                + " But " + Arrays.toString(handler.getParameterTypes()));
             }
         }
 
@@ -178,8 +177,8 @@ public class LineMessageHandlerSupport {
 
             if (type instanceof Class) {
                 return ((Class<?>) type).isInterface()
-                        ? EventMapping.DEFAULT_PRIORITY_FOR_IFACE
-                        : EventMapping.DEFAULT_PRIORITY_FOR_CLASS;
+                       ? EventMapping.DEFAULT_PRIORITY_FOR_IFACE
+                       : EventMapping.DEFAULT_PRIORITY_FOR_CLASS;
             }
 
             if (type instanceof ParameterizedType) {

@@ -21,7 +21,6 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.linecorp.bot.spring.boot.support.LineBotDestinationArgumentProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -35,6 +34,7 @@ import com.linecorp.bot.model.event.CallbackRequest;
 import com.linecorp.bot.parser.WebhookParseException;
 import com.linecorp.bot.parser.WebhookParser;
 import com.linecorp.bot.spring.boot.annotation.LineBotMessages;
+import com.linecorp.bot.spring.boot.support.LineBotDestinationArgumentProcessor;
 import com.linecorp.bot.spring.boot.support.LineBotServerArgumentProcessor;
 
 import lombok.AllArgsConstructor;
